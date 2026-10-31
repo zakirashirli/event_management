@@ -58,6 +58,9 @@ function renderDetails() {
   add.id = 'add-ticket';
   add.className = 'add-ticket';
   add.textContent = 'ADD TO CART';
+  add.disabled = !seat.available || cart.has(seat.id);
+  if (!seat.available) add.textContent = 'UNAVAILABLE';
+  else if (cart.has(seat.id)) add.textContent = 'ALREADY IN YOUR CART';
   details.append(name, info, add);
 }
 seatRoot.addEventListener('click', event => {
@@ -65,5 +68,18 @@ seatRoot.addEventListener('click', event => {
   if (!button) return;
   inspectedId = button.dataset.seat;
   renderDetails();
+  renderSeatStates();
   status.textContent = `Inspecting ${inspectedId}. Use Add to Cart to select this ticket.`;
 });
+
+function renderSeatStates() {
+  for (const seat of seats) {
+    const button = buttons.get(seat.id);
+    button.classList.toggle('unavailable', !seat.available);
+    button.classList.toggle('in-cart', cart.has(seat.id));
+    button.classList.toggle('inspected', seat.id === inspectedId);
+    button.setAttribute('aria-pressed', String(cart.has(seat.id)));
+    button.setAttribute('aria-label', `Row ${seat.row}, seat ${seat.number}, ${seat.zoneName}, ${money(seat.price)}, ${!seat.available ? 'unavailable' : cart.has(seat.id) ? 'in cart' : seat.id === inspectedId ? 'inspecting' : 'available'}`);
+  }
+}
+renderSeatStates();
