@@ -1,4 +1,5 @@
 import { zones, seats, seatById, money } from './venue.js';
+import { setupNavigation } from './navigation.js';
 
 const seatRoot = document.querySelector('#seats');
 const details = document.querySelector('#seat-details');
@@ -42,6 +43,7 @@ function renderVenue() {
   }
 }
 renderVenue();
+setupNavigation();
 
 function renderDetails() {
   const seat = seatById.get(inspectedId);
