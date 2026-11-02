@@ -63,6 +63,12 @@ function renderDetails() {
   add.disabled = !seat.available || cart.has(seat.id);
   if (!seat.available) add.textContent = 'UNAVAILABLE';
   else if (cart.has(seat.id)) add.textContent = 'ALREADY IN YOUR CART';
+  add.addEventListener('click', () => {
+    if (!seat.available || cart.has(seat.id)) return;
+    cart.add(seat.id);
+    updateBooking();
+    status.textContent = `${seat.id} added to your evening.`;
+  });
   details.append(name, info, add);
 }
 seatRoot.addEventListener('click', event => {
@@ -85,3 +91,30 @@ function renderSeatStates() {
   }
 }
 renderSeatStates();
+
+function renderCart() {
+  const list = document.querySelector('#cart-items');
+  list.replaceChildren();
+  let total = 0;
+  for (const id of cart) {
+    const seat = seatById.get(id);
+    total += seat.price;
+    const item = document.createElement('li'); item.className = 'cart-item';
+    const description = document.createElement('div');
+    const name = document.createElement('strong'); name.textContent = `Row ${seat.row} · Seat ${seat.number}`;
+    const meta = document.createElement('span'); meta.textContent = `${seat.zoneName} · ${money(seat.price)}`;
+    description.append(name, meta);
+    const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = '×'; remove.setAttribute('aria-label', `Remove ${seat.id}`);
+    remove.addEventListener('click', () => {
+      cart.delete(id); updateBooking(); status.textContent = `${id} removed from your cart.`;
+      (document.querySelector(`#cart-items button`) || buttons.get(id)).focus();
+    });
+    item.append(description, remove); list.append(item);
+  }
+  if (!cart.size) {
+    const empty = document.createElement('li'); empty.className = 'empty-cart'; empty.textContent = 'Your next great story starts with a seat.'; list.append(empty);
+  }
+  document.querySelector('#cart-count').textContent = `${cart.size} ticket${cart.size === 1 ? '' : 's'}`;
+  document.querySelector('#cart-total').textContent = money(total);
+}
+function updateBooking() { renderSeatStates(); renderCart(); renderDetails(); }
