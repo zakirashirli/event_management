@@ -1,11 +1,15 @@
 import { zones, seats, seatById, money } from './venue.js';
 import { setupNavigation } from './navigation.js';
+import { loadCart, saveCart } from './storage.js';
 
 const seatRoot = document.querySelector('#seats');
 const details = document.querySelector('#seat-details');
 const status = document.querySelector('#status');
 let inspectedId = null;
-const cart = new Set();
+// Access can itself throw when storage is blocked by browser policy.
+let storage;
+try { storage = window.localStorage; } catch { /* Selection remains usable in memory. */ }
+const cart = new Set(loadCart(storage));
 const buttons = new Map();
 
 function renderVenue() {
@@ -117,4 +121,8 @@ function renderCart() {
   document.querySelector('#cart-count').textContent = `${cart.size} ticket${cart.size === 1 ? '' : 's'}`;
   document.querySelector('#cart-total').textContent = money(total);
 }
-function updateBooking() { renderSeatStates(); renderCart(); renderDetails(); }
+function updateBooking() {
+  renderSeatStates(); renderCart(); renderDetails();
+  document.querySelector('#storage-warning').hidden = saveCart(storage, cart);
+}
+renderCart();
