@@ -1,0 +1,6 @@
+{
+  "name": "lumen-cinema-ticketing",
+  "private": true,
+  "type": "module",
+  "scripts": { "start": "node server.mjs", "test": "node --test tests/state.test.mjs" }
+}
